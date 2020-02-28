@@ -136,3 +136,5 @@ class TrainIterator:
                     val_accuracy, _ = self.UpdateMetric(val_accuracy, self.ComputeMetric(out, y), i)
                     
                 self.PrintBatchLoss(epoch, self.batch_size, epoch_loss, epoch_accuracy, val_loss, val_accuracy)
+                
+        return self.model
