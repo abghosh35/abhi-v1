@@ -95,10 +95,11 @@ class TrainIterator:
         
         OverallLoss = 0.0
         OverallAccuracy = 0.0
-        self.model.train()
+
         self.model.zero_grad()
         
         for epoch in range(1, (self.epochs + 1)):
+            self.model.train()
             iter_over = False
             tic = time.time()
             losses = []
