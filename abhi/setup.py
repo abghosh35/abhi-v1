@@ -14,7 +14,8 @@ setup(name='abhi',
       packages=['abhi'],
       install_requires=[
           'joblib',
-          'torch'
+          'torch',
+          'tabulate'
       ],
       include_package_data=True,
       zip_safe=False)
