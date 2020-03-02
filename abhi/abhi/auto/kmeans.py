@@ -2,6 +2,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Clustering:
@@ -20,6 +21,7 @@ class Clustering:
         self.random_state = random_state
         self.min_clusters = min_clusters
         self.max_clusters = max_clusters
+        
         
     def fitpca(self):
         princomp = PCA(n_components=2, random_state=self.random_state)
@@ -42,5 +44,14 @@ class Clustering:
             clust.fit(X)
 
             sil_score.append(silhouette_score(X, clust.labels_, metric="euclidean"))
+            
+            
+        plt.figure(figsize=(15, 10))
+        plt.plot(krange, sil_score)
+        plt.title("Silhoute score for Clustering", fontsize=15)
+        plt.xlabel("# Clusters", fontsize=13)
+        plt.ylabel("Silhoute score", fontsize=13)
+        plt.show()
+        plt.close()
 
         return krange, sil_score

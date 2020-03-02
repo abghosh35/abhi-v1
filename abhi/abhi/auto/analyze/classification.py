@@ -5,7 +5,10 @@ import time
 import math
 from tabulate import tabulate
 import seaborn as sns
+import warnings
+
 sns.set(style="ticks", color_codes=True)
+warnings.simplefilter('ignore')
 
 
 class BinaryClassification:
@@ -100,8 +103,12 @@ class BinaryClassification:
         fig, ax = plt.subplots(nrows, ncols, figsize=(30, 22), sharex=True)
         
         for i in range(data.shape[1]):
+            try:
+                corr_coeff = np.corrcoef(data[self.depvar], data[data.columns[i]])[0][1]
+            except:
+                corr_coeff = np.nan
             sns.boxplot(x=self.depvar, y=data.columns[i], data=data, ax=ax[i%nrows, i%ncols])
-            ax[i%nrows, i%ncols].set_title("Variable: {}".format(data.columns[i].upper()))
+            ax[i%nrows, i%ncols].set_title("Variable: {} (Correlation: {:.4f})".format(data.columns[i].upper(), corr_coeff), fontsize=15)
             ax[i%nrows, i%ncols].set_xlabel(None)
         plt.show()
         plt.close()
