@@ -39,8 +39,14 @@ class BinaryClassification:
         var_summary['drop'] = np.where(var_summary['missing'] > self.missing_cutoff, "True (Missing cut-off reached)", None)
         var_summary['drop'] = np.where((var_summary['min'] == var_summary['max']) & pd.isnull(var_summary['drop']), "True (Min = Max)", None)
         
+        
         if self.exclude_summary_vars is not None:
-            var_summary.drop(self.exclude_summary_vars, axis=1, inplace=True)
+            cols2drop = []
+            for v in self.exclude_summary_vars:
+                if v in var_summary.columns:
+                    cols2drop.append(v)
+                    
+            var_summary.drop(cols2drop, axis=1, inplace=True)
         
         print("Variable summary: \n{}\n".format(self.pdtabulate(var_summary)))
         return var_summary, var_summary.loc[~pd.isnull(var_summary['drop'])].index.values
