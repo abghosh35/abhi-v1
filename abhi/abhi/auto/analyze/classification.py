@@ -60,15 +60,15 @@ class BinaryClassification:
     def MakeDistributionPlot(self, data):
         ncols = self.ncols
         nrows = self.nrows
-        fig, ax = plt.subplots(nrows, ncols, figsize=(30, 22), sharex=True)
+        fig, ax = plt.subplots(nrows, ncols, figsize=(30, 22))
         dtypes = data.dtypes
         for i in range(len(dtypes)):
             if dtypes.values[i] == object:
                 summary = pd.DataFrame(data[data.columns[i]].value_counts(dropna=False))
-                ax[i%nrows, i%ncols].bar(summary.index, summary.values.flatten())
+                ax[i%nrows, i%ncols].bar(summary.index, summary[data.columns[i]])
             elif (dtypes.values[i] in [int, np.int64, np.int32]) & (len(np.unique(data[data.columns[i]])) < 10):
                 summary = pd.DataFrame(data[data.columns[i]].value_counts(dropna=False))
-                ax[i%nrows, i%ncols].bar(summary.index, summary.values.flatten())
+                ax[i%nrows, i%ncols].bar(summary.index, summary[data.columns[i]])
             else:
                 ax[i%nrows, i%ncols].hist(data[data.columns[i]], bins=50)
 
