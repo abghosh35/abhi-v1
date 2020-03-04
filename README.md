@@ -21,11 +21,11 @@ Current functionalities:
     - Classification
     - Regression
 4. Torch
-    > NLP
+    > NLP \n
         - NER model
 
 5. Utils
-    > Data:
+    > Data: \n
         - TrainVsValidSplit
         - MissingValueTreatment
         - OutlierTreatment
