@@ -38,11 +38,11 @@ def read_version():
 required_packages = [
     'scikit-learn>=0.22.1',
     'joblib>=0.14.1',
-    'torch>=1.4.0',
-    'tabulate>=0.8.6',
-    'pandas>=1.0.1',
-    'numpy>=1.18.1',
-    'matplotlib>=3.1.3'
+    'torch',
+    'tabulate',
+    'pandas',
+    'numpy',
+    'matplotlib'
 ]
 
 setup(
