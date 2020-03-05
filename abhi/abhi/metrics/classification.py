@@ -12,6 +12,8 @@ class BinaryClassificationReport:
     Inputs:
         act: list Actual or True target values
         pred_probas: list Predicted probabilities of event=1
+        prob_cutoff: float (default=0.5) Probability cutoff to convert probabilities into classes
+                     if pred_probas >= prob_cutoff then 1 else 0
         metric: string (default="all") Which metric(s) to output
             Possible values: "all", 'accuracy', 'confusion_matrix', 'other_metrics', 'roc_auc'
             
@@ -19,10 +21,11 @@ class BinaryClassificationReport:
         KSTable (Kolmogorov-Smirnov Statistic); Computes the traditional KS statistic table
             
     """
-    def __init__(self, act, pred_probas, metric='all'):
+    def __init__(self, act, pred_probas, prob_cutoff=0.5, metric='all'):
         self.act = np.asarray(act)
         self.pred_probas = pred_probas
-        self.pred = np.asarray([1 if p >= 0.5 else 0 for p in self.pred_probas])
+        self.prob_cutoff = prob_cutoff
+        self.pred = np.asarray([1 if p >= self.prob_cutoff else 0 for p in self.pred_probas])
         self.metric = metric
         self.pdtabulate = lambda df:tabulate(df,headers='keys',tablefmt='psql')
         
@@ -67,6 +70,7 @@ class BinaryClassificationReport:
         print("Precision: {:.2f}%".format(mets.precision_score(self.act, self.pred) * 100))
         print("Recall: {:.2f}%".format(mets.recall_score(self.act, self.pred) * 100))
         print("F1-Score: {:.2f}%\n".format(mets.f1_score(self.act, self.pred) * 100))
+        return None
         
         
     def RocAucScore(self):
@@ -74,7 +78,7 @@ class BinaryClassificationReport:
         print("AUC score: {:.2f}%\n".format(auc_score * 100))
         
         fpr, tpr, _ = mets.roc_curve(self.act, self.pred_probas)
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(15, 10))
         plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % auc_score)
         plt.plot([0, 1], [0, 1], linestyle="--")
         plt.title("ROC - Area Under the Curve", fontdict={'fontsize':15})
@@ -83,7 +87,26 @@ class BinaryClassificationReport:
         plt.legend(loc="lower right", fontsize='large')
         plt.show()
         print()
-        
+
+        pred_df = pd.DataFrame({'actual': self.act, 'predicted': self.pred, 'probs': self.pred_probas})
+        case_00 = pred_df.loc[(pred_df['actual']==0) & (pred_df['predicted']==0)]
+        case_01 = pred_df.loc[(pred_df['actual']==0) & (pred_df['predicted']==1)]
+        case_10 = pred_df.loc[(pred_df['actual']==1) & (pred_df['predicted']==0)]
+        case_11 = pred_df.loc[(pred_df['actual']==1) & (pred_df['predicted']==1)]
+        fig, ax = plt.subplots(2, 2, figsize=(18, 8))
+        fig.suptitle('Analysis of probability distributions', fontsize=15)
+        ax[0, 0].hist(case_00['probs'])
+        ax[0, 0].set_title('Actual=0, Predicted=0', fontsize=13)
+        ax[0, 1].hist(case_01['probs'])
+        ax[0, 1].set_title('Actual=0, Predicted=1', fontsize=13)
+        ax[1, 0].hist(case_10['probs'])
+        ax[1, 0].set_title('Actual=1, Predicted=0', fontsize=13)
+        ax[1, 1].hist(case_11['probs'])
+        ax[1, 1].set_title('Actual=1, Predicted=1', fontsize=13)
+        plt.show()
+        plt.close()
+        print()
+        return None
         
     def KSTable(self, y_true, pred_proba, bins=5, labels=None, assess_metric=None, assess_aggfunc='sum'):
         """
