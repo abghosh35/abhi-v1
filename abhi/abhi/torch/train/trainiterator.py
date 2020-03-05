@@ -12,7 +12,7 @@ class TrainIterator:
         train_loader: (required) Training data loader
         metric: (required) Dict : Provide the metric value as {metric_name: metric_function}
         loss_fn: (required) function: Pass the criterion function to compute the loss
-        optimizer: (required) function: Pass the optimizer function to run
+        optimizer: function: Pass the optimizer function to run. If None then Adam optimizer is selected by default.
         valid_loader: None: Validation data loader
         lr: float: (default=0.001)
         epochs: Int: (default=1) Number of epochs to run the training job

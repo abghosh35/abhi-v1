@@ -12,25 +12,54 @@
 # language governing permissions and limitations under the License.
 
 
+"""Placeholder docstring"""
+from __future__ import absolute_import
+
+import os
+from glob import glob
+import sys
+
 from setuptools import setup, find_packages
 
-def readme():
-    with open('README.rst') as f:
-        return f.read()
 
-setup(name='abhi',
-      version='0.1 (beta)',
-      description='Commonly used functions',
-      url='https://github.com/abghosh35/',
-      author='Abhijit Ghosh',
-      author_email='abhijigh@amazon.com',
-      license='GNU AGPL v3',
-      packages=['abhi'],
-      install_requires=[
-          'scikit-learn>=0.22.1',
-          'joblib',
-          'torch',
-          'tabulate'
-      ],
-      include_package_data=True,
-      zip_safe=False)
+def read(fname):
+    """
+    Args:
+        fname:
+    """
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+
+def read_version():
+    return read("VERSION").strip()
+
+
+# Declare minimal set for installation
+required_packages = [
+    'scikit-learn>=0.22.1',
+    'joblib>=0.14.1',
+    'torch>=1.4.0',
+    'tabulate>=0.8.6',
+    'pandas>=1.0.1',
+    'numpy>=1.18.1',
+    'matplotlib>=3.1.3'
+]
+
+setup(
+    name="abhi",
+    version=read_version(),
+    description="Commonly used functions.",
+    packages=find_packages(),
+    # packages=['abhi'],
+    # package_dir={"": "abhi"},
+    # py_modules=[os.path.splitext(os.path.basename(path))[0] for path in glob("abhi/*.py")],
+    long_description=read("README.rst"),
+    author="Abhijit Ghosh",
+    author_email='abghosh35@gmail.com',
+    url="https://github.com/abghosh35/PythonApp/",
+    license="Apache License 2.0",
+    keywords="Abhijit abhi ML Torch Model",
+    install_requires=required_packages,
+    include_package_data=True,
+    # zip_safe=False
+)

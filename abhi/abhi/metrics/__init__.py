@@ -1,3 +1,3 @@
 from . import regression
-from .classification import BinaryClassificationReport
+from . import classification
 from . import forecasting

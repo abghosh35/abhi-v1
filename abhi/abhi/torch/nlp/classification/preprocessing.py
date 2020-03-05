@@ -3,7 +3,16 @@ from bs4 import BeautifulSoup as BS
 import string
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer as cntvect
+from sklearn.preprocessing import LabelBinarizer as LBL
 
+
+def Label2Index(labels, onehot_encoded=True):
+    lbin = LBL()
+    lbin.fit(labels)
+
+    _labels_ = lbin.transform(labels)
+
+    return _labels_
 
 class BasicPreProcessing:
     """
@@ -73,6 +82,13 @@ class BasicPreProcessing:
             for w in words:
                 if w in list(word2idx.keys()):
                     x.append(word2idx[w])
+
+            lx = len(x)
+            if lx >= self.max_features:
+                x = x[:self.max_features]
+            else:
+                x = x + [word2idx[self.padding_text]] * (self.max_features - lx)
+
             X.append(x)
 
         return X, word2idx, idx2word

@@ -1,4 +1,4 @@
-import torch
+import torch as th
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 
@@ -17,13 +17,12 @@ def BatchGenerator(Data, batch_size=32, shuffle=True, num_workers=1):
     
     Loaders = []
     for i in range(len(Data)):
-        if isinstance(Data[i][0], list):
-            X = torch.tensor(Data[i][0])
-            y = torch.tensor(Data[i][1])
-        else:
-            X = Data[i][0]
-            y = Data[i][1]
-            
+        if isinstance(Data[i][1], list):
+            y = np.asarray(Data[i][1])
+
+        X = torch.LongTensor(Data[i][0])
+        y = torch.FloatTensor(Data[i][1])
+        
         Loaders.append(DataLoader(TensorDataset(X, y), 
                                 batch_size=batch_size,
                                 shuffle=shuffle,
