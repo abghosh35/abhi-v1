@@ -44,6 +44,7 @@ required_packages = [
     'numpy',
     'matplotlib',
     'seaborn',
+    'bs4'
 ]
 
 setup(
