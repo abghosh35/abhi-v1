@@ -13,7 +13,9 @@
 
 
 from sklearn.model_selection import train_test_split as tts
+from sklearn.preprocessing import LabelBinarizer as LBL
 import numpy as np
+import pandas as pd
 
         
 def TrainVsValidSplit(X, y, test_size=0.2, random_state=123):
@@ -93,6 +95,41 @@ def MissingValueTreatment(X, dict_of_replacements=None):
     return X
 
 
+def XLabelBinarizer(X, columns=[]):
+    """
+    Create One-hot encoding of Character variables
+    Inputs:
+        X: DataFrame of inputs
+        columns: List of columns to be converted
+
+    Output: DataFrame with:
+            - dropped raw character variables
+            - Appended one-hot encoding variables with column names as 'raw_column_name_' + unique_value
+    """
+
+    for c in columns:
+        X[c] = X[c].astype(str)
+        lbin = LBL()
+        lbin.fit(X[c])
+        _temp_ = pd.DataFrame(lbin.transform(X[c]))
+        if _temp_.shape[1] > 1:
+            regex_replace = " :!@#$%^&*()-=+.,?"
+            classes_ = []
+            for cl in lbin.classes_:
+                t = cl
+                for r in regex_replace:
+                    t = t.replace(r, '_')
+                classes_.append(t.lower())
+            colnames = [c + '_' + cl for cl in classes_]
+            _temp_.columns = colnames
+        else:
+            _temp_.columns = [c]
+        
+        X = pd.concat([X.drop(c, axis=1), _temp_], axis=1)
+    
+    return X
+
+
 def OutlierTreatment(X, method='f=1,c=99'):
     """
     Performs outlier treatment of the variables
@@ -100,10 +137,19 @@ def OutlierTreatment(X, method='f=1,c=99'):
         X: Pandas DataFrame
         method: string : (default: 'f=1,c=99')
             'f=1,c=99': Floor the variable at 1st percentile and cap at 99th percentile. 1 and 99 can be replaced with the desired percentile values.
-            'm=-2,m=+2': Floor the variable at Mean - 2*(standard deviation) and cap at Mean + 2*(standard deviation). -2 and +2 can be replaced with the desired multipliers.
+            'm=-2,m=2': Floor the variable at Mean - 2*(standard deviation) and cap at Mean + 2*(standard deviation). -2 and 2 can be replaced with the desired multipliers.
              
 
     Return: Treated dataframe
     """
-
+    if isinstance(method, str):
+        method = [m.split('=') for m in method.split(',')]
+        if (method[0][0] == 'f') & (method[1][0]=='c'):
+            print('Percentile wise floor cap:: {}'.format(method))
+        elif (method[0][0] == 'm') & (method[1][0]=='m'):
+            print('Mean +/- sd floor cap:: {}'.format(method))
+    elif isinstance(method, dict):
+        print("Dictionary passed")
+    else:
+        raise ValueError("'method' can be either string or dictionary")
     return X

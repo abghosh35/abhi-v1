@@ -6,7 +6,19 @@ import time
 
 class TrainIterator:
     """
-    
+    Run training job with validation (if validation data is provided)
+    Inputs:
+        model: (required) Model class
+        train_loader: (required) Training data loader
+        metric: (required) Dict : Provide the metric value as {metric_name: metric_function}
+        loss_fn: (required) function: Pass the criterion function to compute the loss
+        optimizer: (required) function: Pass the optimizer function to run
+        valid_loader: None: Validation data loader
+        lr: float: (default=0.001)
+        epochs: Int: (default=1) Number of epochs to run the training job
+        use_gpu: Boolean (default=True) Whether to use GPU or CPU for training
+
+    Return: The final fitted model
     """
     def __init__(self, 
                  model, 
@@ -17,7 +29,7 @@ class TrainIterator:
                  lr=0.001,
                  epochs=1, 
                  use_gpu=True,
-                 metric="accuracy"
+                 metric=None
                 ):
         
         self.model = model
@@ -28,7 +40,8 @@ class TrainIterator:
         self.lr = lr
         self.epochs = epochs
         self.use_gpu = use_gpu
-        self.metric = metric
+        self.metric = metric[list(metric.keys())[0]]
+        self.metric_name = list(metric.keys())[0]
         self.batch_size = len(self.train_loader)
         
         if use_gpu:
@@ -53,19 +66,6 @@ class TrainIterator:
             metric += new_value
             
         return metric, count + 1
-    
-    
-    def ComputeMetric(self, out, y):
-        metrics = {}
-        
-        y = y.detach().cpu().numpy().ravel()
-        out = out.detach().cpu().numpy()
-        out = np.argmax(out, axis=1)
-        mask = (y >= 0)
-        
-        metrics['accuracy'] = np.sum(out == y)/float(np.sum(mask))
-        
-        return metrics[self.metric]
             
     
     def PrintBatchLoss(self, epoch, batch_num, epoch_loss, epoch_accuracy, val_loss=None, val_accuracy=None):
@@ -77,32 +77,24 @@ class TrainIterator:
         bar_fill = '█' * nb_bar_fill
         bar_empty = ' ' * (nbars - nb_bar_fill)
         text = "Epoch#{}/{} |{}| {}% ({}/{})".format(epoch, self.epochs, str(bar_fill + bar_empty), percent, batch_num, self.batch_size)
-        text += "\t Train (Loss: {:.4f}, {}: {:.4f})".format(epoch_loss, self.metric.capitalize(), epoch_accuracy)
+        text += " Train (Loss: {:.4f}, {}: {:.4f})".format(epoch_loss, self.metric_name.capitalize(), epoch_accuracy)
         if val_loss is not None:
-            text += "\t Valid (Loss: {:.4f}, {}: {:.4f})".format(val_loss, self.metric.capitalize(), val_accuracy)
+            text += " Valid (Loss: {:.4f}, {}: {:.4f})".format(val_loss, self.metric_name.capitalize(), val_accuracy)
         sys.stdout.write("\r" + str(text))
         if batch_num == self.batch_size:
             print()
         sys.stdout.flush()
             
-     
-    
     
     def RunTrainer(self):
         
         criterion = self.loss_fn
         optimizer = self.optimizer(self.model.parameters(), lr=self.lr)
-        
-        OverallLoss = 0.0
-        OverallAccuracy = 0.0
 
         self.model.zero_grad()
         
         for epoch in range(1, (self.epochs + 1)):
             self.model.train()
-            iter_over = False
-            tic = time.time()
-            losses = []
             epoch_loss = 0.0
             epoch_accuracy = 0.0
             
@@ -111,14 +103,14 @@ class TrainIterator:
                 y = y.to(self.device)
                 
                 out = self.model(x)
-                loss = self.loss_fn(out, y)
+                loss = criterion(out, y)
                 
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
                 
                 epoch_loss, _ = self.UpdateMetric(epoch_loss, loss.item(), i)
-                epoch_accuracy, _ = self.UpdateMetric(epoch_accuracy, self.ComputeMetric(out, y), i)
+                epoch_accuracy, _ = self.UpdateMetric(epoch_accuracy, self.metric(out, y), i)
                 
                 self.PrintBatchLoss(epoch, i, epoch_loss, epoch_accuracy)
             
@@ -134,7 +126,7 @@ class TrainIterator:
                     loss = self.loss_fn(out, y)
                     
                     val_loss, _ = self.UpdateMetric(val_loss, loss.item(), i)
-                    val_accuracy, _ = self.UpdateMetric(val_accuracy, self.ComputeMetric(out, y), i)
+                    val_accuracy, _ = self.UpdateMetric(val_accuracy, self.metric(out, y), i)
                     
                 self.PrintBatchLoss(epoch, self.batch_size, epoch_loss, epoch_accuracy, val_loss, val_accuracy)
                 

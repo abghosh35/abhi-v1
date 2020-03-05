@@ -75,6 +75,9 @@ class BinaryClassification:
                     cols2drop.append(v)
                     
             var_summary.drop(cols2drop, axis=1, inplace=True)
+
+        if 'unique' in var_summary.columns:
+            var_summary['unique'].fillna('', inplace=True)
         
         print("Variable summary: \n{}\n".format(self.pdtabulate(var_summary)))
         return var_summary, var_summary.loc[~pd.isnull(var_summary['drop'])].index.values
@@ -145,9 +148,10 @@ class BinaryClassification:
         
         for i in range(data.shape[1]):
             try:
-                corr_coeff = np.corrcoef(data[self.depvar], data[data.columns[i]])[0][1]
+                corr_coeff = np.corrcoef(data.loc[~data[data.columns[i]].isnull(), self.depvar], data.loc[~data[data.columns[i]].isnull(), data.columns[i]])[0][1]
             except:
                 corr_coeff = np.nan
+
             sns.boxplot(x=self.depvar, y=data.columns[i], data=data, ax=ax[i%nrows, i%ncols])
             ax[i%nrows, i%ncols].set_title("Variable: {} (Correlation: {:.4f})".format(data.columns[i].upper(), corr_coeff), fontsize=15)
             ax[i%nrows, i%ncols].set_xlabel(None)
