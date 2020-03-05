@@ -5,14 +5,14 @@ Version: 0.1 (Beta)
 
 Current functionalities:
 1. Auto:
-    a. Analysis:
-        > Classification:
+    - Analysis:
+        - Classification:
             - Data Summary
             - Univariate plots
             - Bivariate plots
             - Correlation matrix and heatmap
 
-    b. KMeans
+    - KMeans
 2. Fancy:
     - Parallel processing
     - Progress bar
@@ -21,11 +21,11 @@ Current functionalities:
     - Classification
     - Regression
 4. Torch
-    > NLP
+    - NLP 
         - NER model
 
 5. Utils
-    > Data:
+    - Data:
         - TrainVsValidSplit
         - MissingValueTreatment
         - OutlierTreatment
