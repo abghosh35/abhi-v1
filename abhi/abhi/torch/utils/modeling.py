@@ -20,8 +20,8 @@ def BatchGenerator(Data, batch_size=32, shuffle=True, num_workers=1):
         if isinstance(Data[i][1], list):
             y = np.asarray(Data[i][1])
 
-        X = torch.LongTensor(Data[i][0])
-        y = torch.FloatTensor(Data[i][1])
+        X = th.LongTensor(Data[i][0])
+        y = th.FloatTensor(Data[i][1])
         
         Loaders.append(DataLoader(TensorDataset(X, y), 
                                 batch_size=batch_size,
