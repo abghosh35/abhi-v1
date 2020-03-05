@@ -42,7 +42,8 @@ required_packages = [
     'tabulate',
     'pandas',
     'numpy',
-    'matplotlib'
+    'matplotlib',
+    'seaborn',
 ]
 
 setup(
