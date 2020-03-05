@@ -97,7 +97,8 @@ class TrainIterator:
             self.model.train()
             epoch_loss = 0.0
             epoch_accuracy = 0.0
-            
+            i = 0
+            self.PrintBatchLoss(epoch, i, epoch_loss, epoch_accuracy)
             for i, (x, y) in enumerate(self.train_loader):
                 x = x.to(self.device)
                 y = y.to(self.device)
