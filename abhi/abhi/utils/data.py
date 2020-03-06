@@ -90,7 +90,7 @@ def MissingValueTreatment(X, dict_of_replacements=None):
                 _val_cnts_ = X[key].value_counts(dropna=True, ascending=False)
                 dict_of_replacements[key] = _val_cnts_.index[0]
 
-            X[key].fillna(dict_of_replacements[key])
+            X[key].fillna(dict_of_replacements[key], inplace=True)
 
     return X
 
