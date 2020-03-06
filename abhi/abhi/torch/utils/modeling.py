@@ -1,6 +1,7 @@
 import torch as th
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
+import numpy as np
 
 def BatchGenerator(Data, batch_size=32, shuffle=True, num_workers=1):
     """
