@@ -17,7 +17,6 @@ class TrainIterator:
         lr: float: (default=0.001)
         epochs: Int: (default=1) Number of epochs to run the training job
         use_gpu: Boolean (default=True) Whether to use GPU or CPU for training
-
     Return: The final fitted model
     """
     def __init__(self, 

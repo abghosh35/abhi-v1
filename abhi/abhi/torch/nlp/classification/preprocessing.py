@@ -6,14 +6,6 @@ from sklearn.feature_extraction.text import CountVectorizer as cntvect
 from sklearn.preprocessing import LabelBinarizer as LBL
 
 
-def Label2Index(labels, onehot_encoded=True):
-    lbin = LBL()
-    lbin.fit(labels)
-
-    _labels_ = lbin.transform(labels)
-
-    return _labels_
-
 class BasicPreProcessing:
     """
     This module performs pre-processing of the raw texts and labels for NER exercise. Note that this works at WORD level.
@@ -92,3 +84,27 @@ class BasicPreProcessing:
             X.append(x)
 
         return X, word2idx, idx2word
+
+
+def Label2Index(labels, onehot_encoded=True):
+    lbin = LBL()
+    lbin.fit(labels)
+
+    _labels_ = lbin.transform(labels)
+
+    return _labels_
+
+
+def ScoringPreProcessing(text, word2idx, max_len=100, padding_text='<PAD>'):
+    _temp_ = text.split()
+    text2idx = []
+    for t in _temp_:
+        if t in word2idx.keys():
+            text2idx.append(word2idx[t])
+
+    if len(text2idx) < max_len:
+        text2idx = text2idx + [word2idx[padding_text]] * (max_len - len(text2idx))
+    else:
+        text2idx = text2idx[:max_len]
+
+    return text2idx
