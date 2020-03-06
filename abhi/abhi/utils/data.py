@@ -65,7 +65,7 @@ def TrainVsValidSplit(X, y, test_size=0.2, random_state=123):
                }
 
 
-def MissingValueTreatment(X, dict_of_replacements=None):
+def MissingValueTreatment(df, dict_of_replacements=None):
     """
     Replace Missing values in the data with the provided dictionary.
     Inputs: X (type: Pandas dataframe)
@@ -80,22 +80,25 @@ def MissingValueTreatment(X, dict_of_replacements=None):
     Returns: the dataframe with filled in missing values
     """
 
+    X = df.copy()
+
     for key in dict_of_replacements.keys():
-        if dict_of_replacements[key] in ['mean','median','modal']:
-            if (dict_of_replacements[key] == 'mean') & (X[key].dtype in [float, int]):
-                dict_of_replacements[key] = X[key].mean()
-            elif (dict_of_replacements[key] == 'median') & (X[key].dtype == float):
-                dict_of_replacements[key] = np.median(X[key])
-            elif (dict_of_replacements[key] == 'modal') & (X[key].dtype in [object, int]):
-                _val_cnts_ = X[key].value_counts(dropna=True, ascending=False)
-                dict_of_replacements[key] = _val_cnts_.index[0]
+        if key in X.columns:
+            if dict_of_replacements[key] in ['mean','median','modal']:
+                if (dict_of_replacements[key] == 'mean') & (X[key].dtype in [float, int]):
+                    dict_of_replacements[key] = X[key].mean()
+                elif (dict_of_replacements[key] == 'median') & (X[key].dtype == float):
+                    dict_of_replacements[key] = X[key].median()
+                elif (dict_of_replacements[key] == 'modal') & (X[key].dtype in [object, int]):
+                    _val_cnts_ = X[key].value_counts(dropna=True, ascending=False)
+                    dict_of_replacements[key] = _val_cnts_.index[0]
 
             X[key].fillna(dict_of_replacements[key], inplace=True)
 
     return X
 
 
-def XLabelBinarizer(X, columns=[]):
+def XLabelBinarizer(df, columns=[]):
     """
     Create One-hot encoding of Character variables
     Inputs:
@@ -107,7 +110,10 @@ def XLabelBinarizer(X, columns=[]):
             - Appended one-hot encoding variables with column names as 'raw_column_name_' + unique_value
     """
 
+    X = df.copy()
+
     for c in columns:
+        print("Processing column: " + str(c), end="\t")
         X[c] = X[c].astype(str)
         lbin = LBL()
         lbin.fit(X[c])
@@ -124,8 +130,11 @@ def XLabelBinarizer(X, columns=[]):
             _temp_.columns = colnames
         else:
             _temp_.columns = [c]
-        
+
+        _temp_.index = X.index
+
         X = pd.concat([X.drop(c, axis=1), _temp_], axis=1)
+        print("completed")
     
     return X
 

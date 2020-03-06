@@ -105,7 +105,7 @@ class BinaryClassification:
                 summary = pd.DataFrame(data[data.columns[i]].value_counts(dropna=False))
                 ax[i%nrows, i%ncols].bar(summary.index, summary[data.columns[i]])
             elif (dtypes.values[i] in [int, np.int64, np.int32]) & (len(np.unique(data[data.columns[i]])) < self.max_unique_int_for_char):
-                data[data.columns[i]] = data[data.columns[i]].apply(lambda x: '0' + str(x) if (abs(x) < 9) else x)
+                data[data.columns[i]] = data[data.columns[i]].apply(lambda x: '0' + str(x) if (abs(x) < 9) else str(x))
                 data[data.columns[i]].fillna('Missing', inplace=True)
                 summary = pd.DataFrame(data[data.columns[i]].value_counts(dropna=False))
                 ax[i%nrows, i%ncols].bar(summary.index, summary[data.columns[i]])
