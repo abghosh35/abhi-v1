@@ -21,7 +21,7 @@ class BasicPreProcessing:
     Returns: List of cleaned and Pre-processed string
     """
 
-    def __init__(self, texts, for_embedding=True, ngrams=(1, 1), min_df=0.005, max_df=0.99, max_features='all', padding_text='<PAD>'):
+    def __init__(self, texts, for_embedding=True, remove_puncts=True, ngrams=(1, 1), min_df=0.005, max_df=0.99, max_features='all', padding_text='<PAD>'):
         self.texts = pd.DataFrame({'RawTexts': texts})
         self.for_embedding = for_embedding
         self.ngrams = ngrams
@@ -30,6 +30,7 @@ class BasicPreProcessing:
         self.max_df = max_df
         self.max_features = max_features
         self.padding_text = padding_text
+        self.remove_puncts = remove_puncts
 
     def FetchData(self):
         if self.for_embedding:
@@ -38,9 +39,17 @@ class BasicPreProcessing:
             return self._CleanText()
     
     def _CleanText(self):
-        self.texts = self.texts['RawTexts'].apply(lambda x: self._LowerText(self._RemovePunctuations(BS(x, 'html.parser').get_text())))
-        
+        self.texts = self.texts['RawTexts'].apply(lambda x: self._performCleaning(x))
+
         return self.texts.tolist()
+
+    def _performCleaning(self, x):
+        _temp_ = BS(x, 'html.parser').get_text()
+        _temp_ = self._LowerText(_temp_)
+        if self.remove_puncts:
+            _temp_ = self._RemovePunctuations(_temp_)
+
+        return _temp_
         
     def _RemovePunctuations(self, text):
         for p in self.punctuations:
